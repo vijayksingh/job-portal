@@ -28,8 +28,8 @@ Revised Scope of Work:
 
 1. Setup and Configuration:
 
-   - [ ] Setup Tailwindcss
-   - [ ] Setup shadcn/ui
+   - [x] Setup Tailwindcss
+   - [x] Setup shadcn/ui
    - [ ] Setup Zod
    - [ ] Setup React Hook Form
    - [ ] Setup React Toastify

@@ -1,52 +1,70 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { SalaryFilter } from "@/components/SalaryFilter";
+import { SkillFilter } from "@/components/SkillFilter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bookmark, Search } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
+import { Job } from "@/types";
+import { useEffect, useState } from "react";
+import { JobCard } from "./_components/JobCard";
 
-// Define the Job type
-type Job = {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  postedAt: string;
-  skills: string[];
-  salary?: string;
-  experience?: string;
-};
-
-// Mock data for jobs
-const mockJobs: Job[] = [
-  {
-    id: "1",
-    title: "Design Engineer",
-    company: "Restream",
-    location: "Remote",
-    type: "Full-time",
-    postedAt: "7 days ago",
-    skills: ["Angular", "Figma", "React", "Typescript"],
-  },
-  {
-    id: "2",
-    title: "Software Engineer II",
-    company: "Bentley Systems",
-    location: "Hybrid (Pune, India)",
-    type: "Full-time",
-    postedAt: "7 days ago",
-    skills: ["React", "NextJS", "SQLite", "NodeJS"],
-  },
-  // Add more mock jobs here...
-];
+const API_URL = "https://my.api.mockaroo.com/job";
+const API_KEY = process.env.NEXT_PUBLIC_MOCKAROO_API_KEY;
 
 export default function JobListings() {
-  const [jobs] = useState<Job[]>(mockJobs);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [skillFilter, setSkillFilter] = useState("");
+  const [minSalary, setMinSalary] = useState(0);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [page]);
+
+  useEffect(() => {
+    filterJobs();
+  }, [jobs, skillFilter, minSalary]);
+
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}?page=${page}&limit=10`, {
+        headers: {
+          "X-API-Key": API_KEY || "",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch jobs");
+      }
+      const newJobs = await response.json();
+      setJobs((prevJobs) => [...prevJobs, ...newJobs]);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+    setLoading(false);
+  };
+
+  const filterJobs = () => {
+    const filtered = jobs.filter((job) => {
+      const jobSalary = parseFloat(
+        job.salary?.replace(/[^0-9.-]+/g, "") || "0",
+      );
+      return (
+        jobSalary >= minSalary &&
+        (skillFilter === "" ||
+          job.skills.some((skill) =>
+            skill.toLowerCase().includes(skillFilter.toLowerCase()),
+          ))
+      );
+    });
+    setFilteredJobs(filtered);
+  };
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -59,73 +77,27 @@ export default function JobListings() {
         </TabsList>
       </Tabs>
 
-      <div className="relative mb-6">
-        <Input placeholder="Search jobs..." className="w-full pl-10" />
-        <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          size={20}
+      <div className="mb-6 space-y-4">
+        <SkillFilter
+          skillFilter={skillFilter}
+          setSkillFilter={setSkillFilter}
         />
+        <SalaryFilter minSalary={minSalary} setMinSalary={setMinSalary} />
       </div>
 
       <div className="space-y-4">
-        {jobs.map((job) => (
+        {filteredJobs.map((job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
-    </div>
-  );
-}
 
-function JobCard({ job }: { job: Job }) {
-  return (
-    <div className="flex items-start space-x-4 rounded-lg border p-4 shadow-sm">
-      <Avatar className="size-12">
-        <AvatarImage
-          src={`https://logo.clearbit.com/${job.company.toLowerCase().replace(/\s+/g, "")}.com`}
-          alt={job.company}
-        />
-        <AvatarFallback>{job.company[0]}</AvatarFallback>
-      </Avatar>
-      <div className="grow">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">{job.title}</h3>
-            <p className="text-sm text-gray-500">
-              {job.company} • {job.location} • {job.type} • {job.postedAt}
-            </p>
-          </div>
-          <Button variant="ghost" className="size-8 p-0">
-            <Bookmark className="size-4" />
-          </Button>
-        </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {job.skills.map((skill) => (
-            <Badge
-              key={skill}
-              variant="secondary"
-              className="flex items-center gap-1"
-            >
-              <Image
-                src={`https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${skill.toLowerCase()}/${skill.toLowerCase()}-original.svg`}
-                alt={skill}
-                className="size-4"
-                width={20}
-                height={20}
-              />
-              {skill}
-            </Badge>
-          ))}
-          {job.skills.length > 4 && (
-            <Badge variant="secondary">+{job.skills.length - 4}</Badge>
-          )}
-        </div>
-        {(job.salary || job.experience) && (
-          <p className="mt-2 text-sm text-gray-600">
-            {job.salary && `${job.salary} • `}
-            {job.experience && `${job.experience} experience`}
-          </p>
-        )}
-      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <Button onClick={handleLoadMore} className="mt-4">
+          Load More
+        </Button>
+      )}
     </div>
   );
 }

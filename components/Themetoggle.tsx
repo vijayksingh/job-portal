@@ -19,8 +19,12 @@ export function ThemeToggle() {
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.style.setProperty("--background", "#1a1a1a");
+      document.documentElement.style.setProperty("--foreground", "#ffffff");
     } else {
       document.documentElement.classList.remove("dark");
+      document.documentElement.style.setProperty("--background", "#ffffff");
+      document.documentElement.style.setProperty("--foreground", "#000000");
     }
     localStorage.setItem("theme", theme);
   }, [theme]);

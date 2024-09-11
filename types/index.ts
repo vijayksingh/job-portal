@@ -12,7 +12,7 @@ export interface User {
   githubUsername: string;
 }
 
-export interface Job {
+export type Job = {
   id: number;
   title: string;
   company: string;
@@ -22,4 +22,10 @@ export interface Job {
   skills: string[];
   salary?: string;
   experience?: string;
-}
+};
+
+// union of job and companyID + application
+export type AppliedJob = Job & {
+  companyId: string;
+  applied: string[];
+};

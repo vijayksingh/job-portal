@@ -10,11 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { UserRole } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import * as z from "zod";
 
 const schema = z.object({
@@ -43,15 +44,23 @@ export default function LoginPage() {
   const onSubmit = async (data: z.infer<typeof schema>) => {
     setIsLoading(true);
     try {
-      await login(data.email, data.password, data.role);
-      toast.success("Logged in successfully");
+      await login(data.email, data.password, data.role as UserRole);
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+        variant: "default",
+      });
       router.push(
         data.role === "freelancer"
           ? "/freelancer/profile"
           : "/employer/post-job",
       );
     } catch (error) {
-      toast.error("Invalid credentials");
+      toast({
+        title: "Error",
+        description: "Invalid credentials",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

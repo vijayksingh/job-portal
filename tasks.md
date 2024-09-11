@@ -5,7 +5,7 @@
 - [x] Setup Husky
 - [x] Setup Eslint
 - [x] Setup Prettier
-- [ ] Setup Commitlint
+- [x] Setup Commitlint
 - [ ] Setup Commitizen
 - [ ] Setup Standard Version
 - [ ] Setup Tailwindcss

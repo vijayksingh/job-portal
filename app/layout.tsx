@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/Themetoggle";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import React from "react";
@@ -25,11 +26,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        {children}
+        <div className="bg-background text-foreground antialiased">
+          <header className="flex items-center justify-between p-4">
+            <h1 className="text-2xl font-bold">Job Portal</h1>
+            <ThemeToggle />
+          </header>
+          {children}
+        </div>
       </body>
     </html>
   );

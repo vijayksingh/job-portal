@@ -26,7 +26,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "commitlint.config.ts"
+    "commitlint.config.ts",
+    "lib/mockAuth.tss"
   ],
   "exclude": ["node_modules"]
 }

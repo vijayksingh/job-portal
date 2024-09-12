@@ -12,7 +12,6 @@ export const Skills = [
   "Photoshop",
   "Illustrator",
   "Sketch",
-  "Python",
   "C#",
   "ASP.NET",
   "Java",

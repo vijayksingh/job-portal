@@ -17,6 +17,7 @@ export const mockLogin = (
           name: "John Doe",
           email,
           role: UserRole.Freelancer,
+          githubUsername: "vijayksingh",
         });
       } else if (
         email === "employer@example.com" &&
@@ -28,6 +29,7 @@ export const mockLogin = (
           name: "Jane Smith",
           email,
           role: UserRole.Employer,
+          githubUsername: "vijayksingh",
         });
       } else {
         reject(new Error("Invalid credentials"));

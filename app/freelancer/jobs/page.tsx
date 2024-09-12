@@ -13,7 +13,6 @@ const API_KEY = process.env.NEXT_PUBLIC_MOCKAROO_API_KEY;
 
 export default function JobListings() {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
@@ -21,46 +20,48 @@ export default function JobListings() {
 
   useEffect(() => {
     fetchJobs();
-  }, [page]);
-
-  useEffect(() => {
-    filterJobs();
-  }, [jobs, selectedSkills, minSalary]);
+  }, [page, selectedSkills, minSalary]);
 
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}?page=${page}&limit=10`, {
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+        skills: selectedSkills.join(","),
+        minSalary: minSalary.toString(),
+      });
+
+      const response = await fetch(`${API_URL}?${queryParams}`, {
         headers: {
           "X-API-Key": API_KEY || "",
         },
       });
+
       if (!response.ok) {
         throw new Error("Failed to fetch jobs");
       }
+
       const newJobs = await response.json();
-      setJobs((prevJobs) => [...prevJobs, ...newJobs]);
+      setJobs((prevJobs) => (page === 1 ? newJobs : [...prevJobs, ...newJobs]));
     } catch (error) {
       console.error("Error fetching jobs:", error);
     }
     setLoading(false);
   };
 
-  const filterJobs = () => {
-    const filtered = jobs.filter((job) => {
-      const jobSalary = parseFloat(
-        job.salary?.replace(/[^0-9.-]+/g, "") || "0",
-      );
-      const skillMatch =
-        selectedSkills.length === 0 ||
-        selectedSkills.some((skill) => job.skills.includes(skill));
-      return jobSalary >= minSalary && skillMatch;
-    });
-    setFilteredJobs(filtered);
-  };
-
   const handleLoadMore = () => {
     setPage((prevPage) => prevPage + 1);
+  };
+
+  const handleSkillsChange = (newSkills: string[]) => {
+    setSelectedSkills(newSkills);
+    setPage(1);
+  };
+
+  const handleSalaryChange = (newMinSalary: number) => {
+    setMinSalary(newMinSalary);
+    setPage(1);
   };
 
   return (
@@ -77,13 +78,13 @@ export default function JobListings() {
       <div className="mb-6 space-y-4">
         <SkillFilter
           selectedSkills={selectedSkills}
-          setSelectedSkills={setSelectedSkills}
+          setSelectedSkills={handleSkillsChange}
         />
-        <SalaryFilter minSalary={minSalary} setMinSalary={setMinSalary} />
+        <SalaryFilter minSalary={minSalary} setMinSalary={handleSalaryChange} />
       </div>
 
       <div className="space-y-4">
-        {filteredJobs.map((job) => (
+        {jobs.map((job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>

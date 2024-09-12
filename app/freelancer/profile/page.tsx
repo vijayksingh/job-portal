@@ -139,12 +139,24 @@ export default function FreelancerProfile() {
           ) : githubData ? (
             <>
               <p>{githubData.contributions} Contributions in the last year</p>
-              <div className="my-2 h-24 bg-gray-100">
-                {/* Placeholder for contribution graph */}
-                {/* You'd need to implement a custom component for the actual graph */}
-              </div>
               <p>Total {githubData.publicRepos} repositories</p>
-              {/* Add more GitHub data as needed */}
+              <div className="mt-4 space-y-2">
+                <h3 className="text-lg font-semibold">Recent Repositories:</h3>
+                {githubData.repositories.map((repo) => (
+                  <div key={repo.name} className="rounded border p-2">
+                    <a
+                      href={repo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium hover:underline"
+                    >
+                      {repo.name}
+                    </a>
+                    <p className="text-sm text-gray-600">{repo.description}</p>
+                    {/* Note: language, stars, and forks are not available in the current data */}
+                  </div>
+                ))}
+              </div>
             </>
           ) : (
             <p>No GitHub data available</p>

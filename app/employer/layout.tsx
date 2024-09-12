@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-export default function FreelancerLayout({
+export default function EmployerLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export default function FreelancerLayout({
         <ul className="flex space-x-4">
           <li>
             <Link
-              href="/employer/manage-job"
+              href="/employer/manage-jobs"
               className="text-foreground hover:text-primary"
             >
               Manage Jobs

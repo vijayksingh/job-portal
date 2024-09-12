@@ -1,21 +1,24 @@
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { MultiSelect } from "@/components/MultiSelect";
+import { Skills } from "@/constants/skills";
 
 type SkillFilterProps = {
-  skillFilter: string;
-  setSkillFilter: (value: string) => void;
+  selectedSkills: string[];
+  setSelectedSkills: (skills: string[]) => void;
 };
 
-export function SkillFilter({ skillFilter, setSkillFilter }: SkillFilterProps) {
+export function SkillFilter({
+  selectedSkills,
+  setSelectedSkills,
+}: SkillFilterProps) {
+  const skillOptions = Skills.map((skill) => ({ label: skill, value: skill }));
+
   return (
-    <div className="flex items-center space-x-2">
-      <Search className="text-gray-400" size={20} />
-      <Input
-        placeholder="Filter by skill..."
-        value={skillFilter}
-        onChange={(e) => setSkillFilter(e.target.value)}
-        className="grow"
-      />
-    </div>
+    <MultiSelect
+      options={skillOptions}
+      onValueChange={setSelectedSkills}
+      defaultValue={selectedSkills}
+      placeholder="Filter by skills"
+      className="w-full"
+    />
   );
 }

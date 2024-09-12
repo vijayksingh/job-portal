@@ -16,7 +16,7 @@ export default function JobListings() {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [skillFilter, setSkillFilter] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [minSalary, setMinSalary] = useState(0);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function JobListings() {
 
   useEffect(() => {
     filterJobs();
-  }, [jobs, skillFilter, minSalary]);
+  }, [jobs, selectedSkills, minSalary]);
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -51,13 +51,10 @@ export default function JobListings() {
       const jobSalary = parseFloat(
         job.salary?.replace(/[^0-9.-]+/g, "") || "0",
       );
-      return (
-        jobSalary >= minSalary &&
-        (skillFilter === "" ||
-          job.skills.some((skill) =>
-            skill.toLowerCase().includes(skillFilter.toLowerCase()),
-          ))
-      );
+      const skillMatch =
+        selectedSkills.length === 0 ||
+        selectedSkills.some((skill) => job.skills.includes(skill));
+      return jobSalary >= minSalary && skillMatch;
     });
     setFilteredJobs(filtered);
   };
@@ -79,15 +76,15 @@ export default function JobListings() {
 
       <div className="mb-6 space-y-4">
         <SkillFilter
-          skillFilter={skillFilter}
-          setSkillFilter={setSkillFilter}
+          selectedSkills={selectedSkills}
+          setSelectedSkills={setSelectedSkills}
         />
         <SalaryFilter minSalary={minSalary} setMinSalary={setMinSalary} />
       </div>
 
       <div className="space-y-4">
-        {filteredJobs.map((job, index) => (
-          <JobCard key={`${index}-${job.id}`} job={job} />
+        {filteredJobs.map((job) => (
+          <JobCard key={job.id} job={job} />
         ))}
       </div>
 
